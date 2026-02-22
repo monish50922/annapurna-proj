@@ -1,114 +1,171 @@
-import { useEffect, useState } from 'react';
-import api from '@/lib/api';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Users, Utensils, HandHeart, BarChart3 } from 'lucide-react';
-import type { AdminReport, User, Donation } from '@/types';
+import { useEffect, useState } from "react";
+import api from "@/lib/api";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Users, Utensils, HandHeart, BarChart3 } from "lucide-react";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from "recharts";
+import type { AdminReport, User, Donation } from "@/types";
+
+const PIE_COLORS = ["#22c55e", "#f97316"];
 
 const AdminDashboard = () => {
   const [report, setReport] = useState<AdminReport | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     Promise.all([
-      api.get('/admin/report').then(({ data }) => setReport(data)).catch(() => {}),
-      api.get('/admin/users').then(({ data }) => setUsers(Array.isArray(data) ? data : [])).catch(() => {}),
-      api.get('/admin/donations').then(({ data }) => setDonations(Array.isArray(data) ? data : [])).catch(() => {}),
+      api.get("/admin/report").then(({ data }) => setReport(data)),
+      api.get("/admin/users").then(({ data }) => setUsers(Array.isArray(data) ? data : [])),
+      api.get("/admin/donations").then(({ data }) => setDonations(Array.isArray(data) ? data : [])),
     ]).finally(() => setLoading(false));
   }, []);
 
-  if (loading) {
-    return <div className="py-12 text-center">Loading...</div>;
-  }
+  if (loading) return <div className="py-12 text-center">Loading...</div>;
 
-  const statCards = report ? [
-    { icon: Users, label: 'Total Users', value: report.total_users },
-    { icon: Utensils, label: 'Total Donations', value: report.total_donations },
-    { icon: HandHeart, label: 'Claimed', value: report.claimed_donations },
-    { icon: BarChart3, label: 'Available', value: report.available_donations },
+  const stats = report ? [
+    { icon: Users, label: "Users", value: report.total_users },
+    { icon: Utensils, label: "Donations", value: report.total_donations },
+    { icon: HandHeart, label: "Claimed", value: report.claimed_donations },
+    { icon: BarChart3, label: "Available", value: report.available_donations },
   ] : [];
 
-  return (
-    <div className="space-y-8">
+  const pieData = report ? [
+    { name: "Claimed", value: report.claimed_donations },
+    { name: "Available", value: report.available_donations },
+  ] : [];
 
-      <div>
-        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-        <p className="text-muted-foreground">Platform overview</p>
+  const barData = donations.reduce((acc: any[], d) => {
+    const found = acc.find(x => x.food === d.food_type);
+    if (found) found.count++;
+    else acc.push({ food: d.food_type, count: 1 });
+    return acc;
+  }, []);
+
+  return (
+    <div className="space-y-10 animate-fade-in-up">
+
+      {/* Header */}
+      <div className="rounded-xl bg-gradient-to-r from-primary/80 to-orange-400 p-6 text-white shadow">
+        <h1 className="text-3xl font-bold">Admin Control Panel</h1>
+        <p className="opacity-90">Live donation analytics</p>
       </div>
 
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {statCards.map((s) => (
-          <Card key={s.label}>
-            <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground">{s.label}</p>
-              <p className="text-3xl font-bold">{s.value}</p>
+        {stats.map((s) => (
+          <Card key={s.label} className="hover:-translate-y-1 hover:shadow-xl transition">
+            <CardContent className="p-6 flex justify-between items-center">
+              <div>
+                <p className="text-sm text-muted-foreground">{s.label}</p>
+                <p className="text-3xl font-bold">{s.value}</p>
+              </div>
+              <s.icon className="h-9 w-9 opacity-40" />
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Users Table */}
+      {/* Charts */}
+      <div className="grid gap-6 lg:grid-cols-2">
+
+        {/* Interactive Pie */}
+        <Card>
+          <CardContent className="p-6">
+            <h2 className="font-semibold mb-4">Donation Status</h2>
+
+            <ResponsiveContainer width="100%" height={280}>
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  dataKey="value"
+                  innerRadius={60}
+                  outerRadius={100}
+                  activeIndex={activeIndex}
+                  onMouseEnter={(_, i) => setActiveIndex(i)}
+                  animationDuration={700}
+                >
+                  {pieData.map((_, i) => (
+                    <Cell key={i} fill={PIE_COLORS[i]} />
+                  ))}
+                </Pie>
+
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+
+            <div className="text-center text-sm text-muted-foreground mt-2">
+              Hover slices for details
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Bar */}
+        <Card>
+          <CardContent className="p-6">
+            <h2 className="font-semibold mb-4">Food Distribution</h2>
+<ResponsiveContainer width="100%" height={280}>
+  <BarChart data={barData}>
+    <XAxis dataKey="food" />
+    <YAxis />
+    <Tooltip />
+
+    <Bar dataKey="count" radius={[10, 10, 0, 0]}>
+      {barData.map((_, index) => (
+        <Cell
+          key={index}
+          fill={[
+            "#22c55e", // green
+            "#f97316", // orange
+            "#3b82f6", // blue
+            "#ec4899", // pink
+            "#a855f7", // purple
+          ][index % 5]}
+        />
+      ))}
+    </Bar>
+  </BarChart>
+</ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+      </div>
+
+      {/* Users */}
       <Card>
-        <CardHeader>
-          <CardTitle>All Users</CardTitle>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 overflow-x-auto">
+          <h2 className="font-semibold mb-3">Users</h2>
+
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b text-left">
-                <th className="pb-2">ID</th>
-                <th className="pb-2">Name</th>
-                <th className="pb-2">Email</th>
-                <th className="pb-2">Role</th>
+              <tr className="border-b">
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
               </tr>
             </thead>
             <tbody>
               {users.map((u) => (
-                <tr key={u.id} className="border-b">
-                  <td className="py-2">{u.id}</td>
-                  <td className="py-2">{u.name}</td>
-                  <td className="py-2">{u.email}</td>
-                  <td className="py-2">
-                    <Badge variant="outline">{u.role}</Badge>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </CardContent>
-      </Card>
-
-      {/* Donations Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>All Donations</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b text-left">
-                <th className="pb-2">ID</th>
-                <th className="pb-2">Food</th>
-                <th className="pb-2">Event</th>
-                <th className="pb-2">Quantity</th>
-                <th className="pb-2">Location</th>
-                <th className="pb-2">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {donations.map((d) => (
-                <tr key={d.id} className="border-b">
-                  <td className="py-2">{d.id}</td>
-                  <td className="py-2">{d.food_type}</td>
-                  <td className="py-2">{d.event_type || 'N/A'}</td>
-                  <td className="py-2">{d.quantity}</td>
-                  <td className="py-2">{d.location}</td>
-                  <td className="py-2">
-                    <Badge variant="outline">{d.status}</Badge>
-                  </td>
+                <tr key={u.id} className="border-b hover:bg-muted/40">
+                  <td>{u.id}</td>
+                  <td>{u.name}</td>
+                  <td>{u.email}</td>
+                  <td><Badge variant="outline">{u.role}</Badge></td>
                 </tr>
               ))}
             </tbody>
