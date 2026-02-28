@@ -10,7 +10,6 @@ import impactStory3 from '@/assets/ngo3.png';
 import AnimatedCounter from '@/components/AnimatedCounter';
 
 import {
-  Heart,
   Users,
   Utensils,
   Search,
@@ -33,8 +32,8 @@ const Index = () => {
 
             {/* LEFT CONTENT */}
             <div>
-              <span className="inline-block rounded-full bg-white/20 px-5 py-2 text-sm font-medium mb-6 backdrop-blur-md">
-                ❤️ Bridging Hunger & Surplus
+             <span className="inline-block rounded-full bg-white/20 px-5 py-2 text-sm font-medium mb-6 backdrop-blur-md">
+                Connecting Surplus with Need
               </span>
 
               <h1 className="font-display text-5xl md:text-6xl font-bold leading-tight tracking-tight">
