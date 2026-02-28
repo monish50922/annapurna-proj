@@ -29,9 +29,14 @@ const Donation = sequelize.define("Donation", {
   },
 
   status: {
-    type: DataTypes.ENUM("AVAILABLE", "CLAIMED"),
-    defaultValue: "AVAILABLE",
-  },
+  type: DataTypes.ENUM(
+    "AVAILABLE",
+    "CLAIMED",
+    "PICKED",
+    "DELIVERED"
+  ),
+  defaultValue: "AVAILABLE",
+},
 
   donorId: {
     type: DataTypes.INTEGER,

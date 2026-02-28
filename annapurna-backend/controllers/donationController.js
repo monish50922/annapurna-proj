@@ -57,3 +57,24 @@ exports.getNgoDonations = async (req, res) => {
 
   res.json(donations);
 };
+exports.markPicked = async (req, res) => {
+  const id = req.params.id;
+
+  await Donation.update(
+    { status: "PICKED" },
+    { where: { id, ngoId: req.user.id } }
+  );
+
+  res.json({ message: "Marked as picked" });
+};
+
+exports.markDelivered = async (req, res) => {
+  const id = req.params.id;
+
+  await Donation.update(
+    { status: "DELIVERED" },
+    { where: { id, ngoId: req.user.id } }
+  );
+
+  res.json({ message: "Marked as delivered" });
+};

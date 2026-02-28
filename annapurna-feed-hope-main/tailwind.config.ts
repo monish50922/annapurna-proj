@@ -17,6 +17,8 @@ export default {
         sans: ["'Source Sans 3'", "sans-serif"],
         serif: ["'Source Serif 4'", "serif"],
         display: ["'Playfair Display'", "serif"],
+        body: ['Source Sans Pro', 'sans-serif'],
+
       },
       colors: {
         border: "hsl(var(--border))",
