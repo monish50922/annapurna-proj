@@ -9,24 +9,43 @@ const api = axios.create({
   },
 });
 
+
+// ================= REQUEST INTERCEPTOR =================
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('annapurna_token');   // must match AuthContext
+
+  const token = localStorage.getItem('annapurna_token');
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
+
 });
 
+
+// ================= RESPONSE INTERCEPTOR =================
 api.interceptors.response.use(
+
   (response) => response,
+
   (error) => {
-    if (error.response?.status === 401) {
+
+    const isLoginRequest = error.config?.url?.includes('/auth/login');
+
+    if (error.response?.status === 401 && !isLoginRequest) {
+
       localStorage.removeItem('annapurna_token');
       localStorage.removeItem('annapurna_user');
+
       window.location.href = '/login';
+
     }
+
     return Promise.reject(error);
+
   }
+
 );
 
 export default api;
