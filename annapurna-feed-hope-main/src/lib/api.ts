@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://annapurna-prj.onrender.com//api';
+const API_BASE_URL = 'https://annapurna-prj.onrender.com/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -8,6 +8,8 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+
 
 
 // ================= REQUEST INTERCEPTOR =================
