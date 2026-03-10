@@ -9,4 +9,10 @@ router.get("/donations", verifyToken, checkRole("ADMIN"), adminController.getAll
 router.get("/test", (req, res) => {
   res.json({ ok: true });
 });
+router.delete(
+  "/donations/:id",
+  verifyToken,
+  checkRole("ADMIN"),
+  adminController.deleteDonation
+);
 module.exports = router;

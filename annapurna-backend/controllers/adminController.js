@@ -34,17 +34,56 @@ exports.getReport = async (req, res) => {
 
 // Get all donations (ADMIN)
 exports.getAllDonations = async (req, res) => {
+
   try {
+
     const donations = await Donation.findAll({
       include: [
-        { model: User, as: "donor", attributes: ["name"] },
+        {
+          model: User,
+          as: "donor",
+          attributes: ["name"],
+        },
+        {
+          model: User,
+          as: "ngo",
+          attributes: ["name"],
+          required: false   // ⭐ IMPORTANT
+        }
       ],
-      order: [["createdAt", "DESC"]],
+      order: [["createdAt", "DESC"]]
     });
 
     res.json(donations);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Error fetching donations" });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
+
+};
+// Delete donation (ADMIN)
+exports.deleteDonation = async (req, res) => {
+
+  try {
+
+    const id = req.params.id;
+
+    const donation = await Donation.findByPk(id);
+
+    if (!donation) {
+      return res.status(404).json({ message: "Donation not found" });
+    }
+
+    await donation.destroy();
+
+    res.json({ message: "Donation deleted successfully" });
+
+  } catch (error) {
+
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+
+  }
+
 };

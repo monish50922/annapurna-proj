@@ -13,28 +13,45 @@ export interface AuthResponse {
 }
 
 export interface Donation {
+
   id: number;
-  donor_id: number;
-  donor_name?: string;
+
   food_type: string;
   quantity: string;
   pickup_time: string;
   location: string;
-  status: 'available' | 'claimed' | 'completed';
-  claimed_by?: number;
-  created_at?: string;
-  updated_at?: string;
+
+  event_type?: string;
+
+  status: 'AVAILABLE' | 'CLAIMED' | 'PICKED' | 'DELIVERED';
+
+  donor?: {
+    name: string;
+  };
+
+  ngo?: {
+    name: string;
+  };
+
+  createdAt?: string;
+  updatedAt?: string;
+
 }
 
 export interface DonationFormData {
+
   food_type: string;
   quantity: string;
   pickup_time: string;
   location: string;
+  event_type: string;
+
 }
 
 export interface AdminReport {
+
   totalUsers: number;
   totalDonations: number;
   claimedDonations: number;
+
 }
