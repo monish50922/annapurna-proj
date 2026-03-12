@@ -397,36 +397,10 @@ const Index = () => {
   <div className="container mx-auto px-6 max-w-2xl text-center">
     <h2 className="text-3xl md:text-4xl font-bold">Get in Touch</h2>
     <p className="mt-4 text-muted-foreground">
-      Have questions or want to partner with us?
+      Have questions or want to partner with us? Contact us on +91 12345 67890 or email us at <a href="mailto:info@annapurna.com">info@annapurna.com</a>
     </p>
 
-    <form className="mt-10 space-y-6 text-left">
-
-      <input
-        type="text"
-        placeholder="Your Name"
-        className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#E76F51]"
-      />
-
-      <input
-        type="email"
-        placeholder="Your Email"
-        className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#E76F51]"
-      />
-
-      <textarea
-        placeholder="Your Message"
-        rows={4}
-        className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#E76F51]"
-      />
-
-      <div className="text-center">
-        <Button className="bg-[#E76F51] hover:bg-[#d45f3f] text-white px-8 py-3 rounded-full">
-          Send Message
-        </Button>
-      </div>
-
-    </form>
+    
   </div>
 </section>
 
