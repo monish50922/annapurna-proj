@@ -1,29 +1,42 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Utensils, Package, Clock, MapPin } from 'lucide-react';
+import { Utensils, Clock, MapPin } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const NewDonation = () => {
 
-const [form, setForm] = useState({
-  food_type: '',
-  quantity: '',
-  quantity_unit: 'meals',
-  pickup_time: '',
-  location: '',
-  event_type: '',
-});
+  const [form, setForm] = useState({
+    food_type: '',
+    quantity: '',
+    quantity_unit: 'meals',
+    pickup_time: '',
+    location: '',
+    event_type: '',
+  });
 
   const [errors, setErrors] = useState<any>({});
   const [loading, setLoading] = useState(false);
+  const [minDateTime, setMinDateTime] = useState('');
 
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Set current time as minimum selectable time
+  useEffect(() => {
+    const now = new Date();
+    const offset = now.getTimezoneOffset();
+    const localTime = new Date(now.getTime() - offset * 60000)
+      .toISOString()
+      .slice(0, 16);
+
+    setMinDateTime(localTime);
+    setForm(prev => ({ ...prev, pickup_time: localTime }));
+  }, []);
 
   const validate = () => {
 
@@ -43,7 +56,7 @@ const [form, setForm] = useState({
       newErrors.event_type = 'Please select an event type';
     }
 
-    if (!form.pickup_time.trim()) {
+    if (!form.pickup_time) {
       newErrors.pickup_time = 'Pickup time is required';
     }
 
@@ -138,38 +151,38 @@ const [form, setForm] = useState({
             </div>
 
             {/* Quantity */}
-<div className="space-y-2">
+            <div className="space-y-2">
 
-  <Label htmlFor="quantity">Quantity</Label>
+              <Label htmlFor="quantity">Quantity</Label>
 
-  <div className="flex gap-2">
+              <div className="flex gap-2">
 
-    <Input
-      id="quantity"
-      type="number"
-      min="1"
-      placeholder="Number"
-      value={form.quantity}
-      onChange={update('quantity')}
-    />
+                <Input
+                  id="quantity"
+                  type="number"
+                  min="1"
+                  placeholder="Number"
+                  value={form.quantity}
+                  onChange={update('quantity')}
+                />
 
-    <select
-      className="rounded-md border bg-background p-2 text-sm"
-      value={form.quantity_unit}
-      onChange={update('quantity_unit')}
-    >
-      <option value="meals">Meals</option>
-      <option value="kg">Kg</option>
-      <option value="plates">Plates</option>
-    </select>
+                <select
+                  className="rounded-md border bg-background p-2 text-sm"
+                  value={form.quantity_unit}
+                  onChange={update('quantity_unit')}
+                >
+                  <option value="meals">Meals</option>
+                  <option value="kg">Kg</option>
+                  <option value="plates">Plates</option>
+                </select>
 
-  </div>
+              </div>
 
-  {errors.quantity && (
-    <p className="text-sm text-red-500">{errors.quantity}</p>
-  )}
+              {errors.quantity && (
+                <p className="text-sm text-red-500">{errors.quantity}</p>
+              )}
 
-</div>
+            </div>
 
             {/* Event Type */}
             <div className="space-y-2">
@@ -199,30 +212,30 @@ const [form, setForm] = useState({
 
             </div>
 
-           {/* Pickup Time */}
-<div className="space-y-2">
+            {/* Pickup Time */}
+            <div className="space-y-2">
 
-  <Label htmlFor="pickup_time">Pickup Time</Label>
+              <Label htmlFor="pickup_time">Pickup Time</Label>
 
-  <div className="relative">
-    <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <div className="relative">
+                <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
 
-    <Input
-      id="pickup_time"
-      type="datetime-local"
-      className="pl-9"
-      min={new Date().toISOString().slice(0,16)}
-      value={form.pickup_time}
-      onChange={update('pickup_time')}
-    />
+                <Input
+                  id="pickup_time"
+                  type="datetime-local"
+                  className="pl-9"
+                  min={minDateTime}
+                  value={form.pickup_time}
+                  onChange={update('pickup_time')}
+                />
 
-  </div>
+              </div>
 
-  {errors.pickup_time && (
-    <p className="text-sm text-red-500">{errors.pickup_time}</p>
-  )}
+              {errors.pickup_time && (
+                <p className="text-sm text-red-500">{errors.pickup_time}</p>
+              )}
 
-</div>
+            </div>
 
             {/* Location */}
             <div className="space-y-2">
